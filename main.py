@@ -25,21 +25,28 @@ review_smile = u'\U0001F4AC'
 box_smile = u'\U0001F4E6'
 link_smile = u'\U0001F449'
 
-PATTERN_APPLICATION_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[A-Za-z0-9].*')
-PATTERN_PC_MSG = re.compile('https://ru.aliexpress.com/item/[\\-0-9/A-Za-z].*.html')
+PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[A-Za-z0-9].*')
+PATTERN_HTML_MSG = re.compile('https://ru.aliexpress.com/item/[\\-0-9/A-Za-z].*.html')
+PATTERN_ALIPUB_MSG = re.compile('http://ali.pub/[0-9A-Za-z].*')
 
 
-# Получаем ID.html товара из присланой ссылки
-def get_html_id(link):
-    # Проверяем, есть ли в ссылке ID.html
+def get_id_alipub(link):
+    req = requests.get(link)
+    soup = BeautifulSoup(req.text, "lxml")
+    product_id = soup.find(property='al:android:url')['content'].split('productId=')[1].split('&')[0] + '.html'
+    return product_id
+
+
+def get_id_sclick(link):
+    req = requests.get(link)
+    soup = BeautifulSoup(req.text, "lxml")
+    product_id = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
+    return product_id
+
+
+def get_id_html(link):
     splitted_link = link.split('/')[-1]
-    if splitted_link.split('.')[-1] == 'html':
-        product_id = splitted_link
-    else:
-        # Если ID.html небыло в ссылке, достаем его перейдя по ссылке
-        req = requests.get(link)
-        soup = BeautifulSoup(req.text, "lxml")
-        product_id = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
+    product_id = splitted_link
     return product_id
 
 
@@ -82,8 +89,7 @@ def get_short_link(long_link):
     return result
 
 
-def send_parsed_message(message, url):
-    html_prod_id = get_html_id(url)
+def send_parsed_message(message, html_prod_id):
     product_reviews, product_rating, product_img_url, title, product_full_url, price = get_prod_info(
         html_prod_id)
     # Получаем числовой ID Товара для создания промо ссылки
@@ -142,20 +148,28 @@ def callback_inline(call):
 @bot.message_handler(content_types=['text'])
 def handle_command(message):
     if message.chat.id == 109964287 or message.chat.id == 39089088:
-        if PATTERN_APPLICATION_MSG.findall(message.text):
+        if PATTERN_SCLICK_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 1')
-            url = PATTERN_APPLICATION_MSG.findall(message.text)
+            url = PATTERN_SCLICK_MSG.findall(message.text)
             print(url)
             for i in url:
-                send_parsed_message(message, i)
-        elif PATTERN_PC_MSG.findall(message.text):
+                html_id = get_id_sclick(i)
+                send_parsed_message(message, html_id)
+        elif PATTERN_HTML_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 2')
-            url = PATTERN_PC_MSG.findall(message.text)
+            url = PATTERN_HTML_MSG.findall(message.text)
             for i in url:
-                send_parsed_message(message, i)
+                html_id = get_id_html(i)
+                send_parsed_message(message, html_id)
+        elif PATTERN_ALIPUB_MSG.findall(message.text):
+            print(str(message.chat.id) + ':' + message.text + ' 3')
+            url = PATTERN_ALIPUB_MSG.findall(message.text)
+            for i in url:
+                html_id = get_id_alipub(i)
+                send_parsed_message(message, html_id)
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
-            print(str(message.chat.id) + ':' + message.text + 'Кривая ссылка')
+            print(str(message.chat.id) + ':' + message.text + ' Кривая ссылка')
     else:
         bot.send_message(message.chat.id, 'Я не понимаю о чем ты')
 
