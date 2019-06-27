@@ -50,8 +50,14 @@ def get_prod_info(html_id):
     m_req = requests.get(m_url)
     m_soup = BeautifulSoup(m_req.text, "lxml")
     data_json = json.loads(m_soup.find('script').text.strip())
-    user_count = str(data_json['aggregateRating']['ratingCount'])
-    user_rating = str(data_json['aggregateRating']['ratingValue'])
+    try:
+        user_count = str(data_json['aggregateRating']['ratingCount'])
+    except KeyError:
+        user_count = 'Нет Отзывов'
+    try:
+        user_rating = str(data_json['aggregateRating']['ratingValue'])
+    except KeyError:
+        user_rating = 'Нет Рейтинга'
     img_url = data_json['image']
     rus_title = data_json['name']
     try:
@@ -104,7 +110,7 @@ def send_parsed_message(message, url):
     keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button)
     bot.send_photo(message.chat.id, product_img_url, box_smile + ' ' + title + '\n'
                    + dollar_bag_smile + ' ' + price + '\n'
-                   + star_smile + ' ' + product_rating + ' из 5' + '\n'
+                   + star_smile + ' ' + product_rating + '\n'
                    + review_smile + ' ' + product_reviews + '\n'
                    + link_smile + ' ' + short_link, parse_mode="HTML", reply_markup=keyboard)
 
@@ -126,7 +132,7 @@ def callback_inline(call):
     file.close()
     bot.send_photo(int(channel_id), product_data['img'], box_smile + ' ' + product_data['title'] + '\n'
                    + dollar_bag_smile + ' ' + product_data['price'] + '\n'
-                   + star_smile + ' ' + product_data['rating'] + ' из 5' + '\n'
+                   + star_smile + ' ' + product_data['rating'] + '\n'
                    + review_smile + ' ' + product_data['reviews'] + '\n'
                    + link_smile + ' ' + product_data['short_url'], parse_mode="HTML")
     bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
@@ -159,4 +165,4 @@ if __name__ == '__main__':
             bot.polling(none_stop=True, interval=0)
         except Exception as err:
             print(err)
-            time.sleep(5)
+            time.sleep(10)
