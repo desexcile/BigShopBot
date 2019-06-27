@@ -54,10 +54,19 @@ def get_id_html(link):
 def get_prod_info(html_id):
     m_url = 'https://m.ru.aliexpress.com/item/' + html_id
     pc_url = 'https://ru.aliexpress.com/item/' + html_id
-    cookie = {'aep_usuc_f' : 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU', 'xman_us_f': 'x_locale=ru_RU&x_l=0'}
+    cookie = {'aep_usuc_f': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
+              'xman_us_f': 'x_locale=ru_RU&x_l=0'}
     m_req = requests.get(m_url, cookies=cookie)
     m_soup = BeautifulSoup(m_req.text, "lxml")
     data_json = json.loads(m_soup.find('script').text.strip())
+    try:
+        img_url = data_json['image']
+    except KeyError:
+        img_url = ''
+    try:
+        rus_title = data_json['name']
+    except KeyError:
+        rus_title = ''
     try:
         user_count = str(data_json['aggregateRating']['ratingCount'])
     except KeyError:
@@ -66,13 +75,14 @@ def get_prod_info(html_id):
         user_rating = str(data_json['aggregateRating']['ratingValue'])
     except KeyError:
         user_rating = 'Нет Рейтинга'
-    img_url = data_json['image']
-    rus_title = data_json['name']
     try:
         current_price = data_json['offers']['price'] + ' ' + data_json['offers']['priceCurrency']
     except KeyError:
-        current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
+        try:
+            current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
                         ' ' + data_json['offers']['priceCurrency']
+        except KeyError:
+            current_price = ''
     return user_count, user_rating, img_url, rus_title, pc_url, current_price
 
 
@@ -92,34 +102,37 @@ def get_short_link(long_link):
 def send_parsed_message(message, html_prod_id):
     product_reviews, product_rating, product_img_url, title, product_full_url, price = get_prod_info(
         html_prod_id)
-    # Получаем числовой ID Товара для создания промо ссылки
-    prod_id = html_prod_id.split('.')[0]
-    # Создаем промо ссылку для последующего укорачивания
-    promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
-    short_link = get_short_link(promo_link)
-    product_data = json.dumps({'img': product_img_url,
-                               'title': title,
-                               'price': price,
-                               'rating': product_rating,
-                               'reviews': product_reviews,
-                               'short_url': short_link})
-    filename = short_link.split('/')[-1] + '.txt'
-    file = open(filename, 'w')
-    file.write(product_data)
-    file.close()
-    keyboard = telebot.types.InlineKeyboardMarkup()
-    toy_channel_button = telebot.types.InlineKeyboardButton(text='@ali_toy', callback_data='@ali_toy::'
-                                                            + ali_toy_id + '::' + filename)
-    bigshop_channel_button = telebot.types.InlineKeyboardButton(text='@alibigshop', callback_data='@alibigshop::'
-                                                                + alibigshop_id + '::' + filename)
-    sex_channel_button = telebot.types.InlineKeyboardButton(text='@alisextoys', callback_data='@alisextoys::'
-                                                            + alisextoys_id + '::' + filename)
-    keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button)
-    bot.send_photo(message.chat.id, product_img_url, box_smile + ' ' + title + '\n'
-                   + dollar_bag_smile + ' ' + price + '\n'
-                   + star_smile + ' ' + product_rating + '\n'
-                   + review_smile + ' ' + product_reviews + '\n'
-                   + link_smile + ' ' + short_link, parse_mode="HTML", reply_markup=keyboard)
+    if title and product_img_url and price:
+        # Получаем числовой ID Товара для создания промо ссылки
+        prod_id = html_prod_id.split('.')[0]
+        # Создаем промо ссылку для последующего укорачивания
+        promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
+        short_link = get_short_link(promo_link)
+        product_data = json.dumps({'img': product_img_url,
+                                   'title': title,
+                                   'price': price,
+                                   'rating': product_rating,
+                                   'reviews': product_reviews,
+                                   'short_url': short_link})
+        filename = short_link.split('/')[-1] + '.txt'
+        file = open(filename, 'w')
+        file.write(product_data)
+        file.close()
+        keyboard = telebot.types.InlineKeyboardMarkup()
+        toy_channel_button = telebot.types.InlineKeyboardButton(text='@ali_toy', callback_data='@ali_toy::'
+                                                                                               + ali_toy_id + '::' + filename)
+        bigshop_channel_button = telebot.types.InlineKeyboardButton(text='@alibigshop', callback_data='@alibigshop::'
+                                                                                                      + alibigshop_id + '::' + filename)
+        sex_channel_button = telebot.types.InlineKeyboardButton(text='@alisextoys', callback_data='@alisextoys::'
+                                                                                                  + alisextoys_id + '::' + filename)
+        keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button)
+        bot.send_photo(message.chat.id, product_img_url, box_smile + ' ' + title + '\n'
+                       + dollar_bag_smile + ' ' + price + '\n'
+                       + star_smile + ' ' + product_rating + '\n'
+                       + review_smile + ' ' + product_reviews + '\n'
+                       + link_smile + ' ' + short_link, parse_mode="HTML", reply_markup=keyboard)
+    else:
+        bot.send_message(message.chat.id, 'Не могу достать данные о товаре, попробуйте другой товар.')
 
 
 @bot.message_handler(commands=['start'])
