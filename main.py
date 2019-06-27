@@ -47,7 +47,8 @@ def get_html_id(link):
 def get_prod_info(html_id):
     m_url = 'https://m.ru.aliexpress.com/item/' + html_id
     pc_url = 'https://ru.aliexpress.com/item/' + html_id
-    m_req = requests.get(m_url)
+    cookie = {'aep_usuc_f' : 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU', 'xman_us_f': 'x_locale=ru_RU&x_l=0'}
+    m_req = requests.get(m_url, cookies=cookie)
     m_soup = BeautifulSoup(m_req.text, "lxml")
     data_json = json.loads(m_soup.find('script').text.strip())
     try:
