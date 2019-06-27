@@ -28,13 +28,19 @@ link_smile = u'\U0001F449'
 PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[A-Za-z0-9].*')
 PATTERN_HTML_MSG = re.compile('https://ru.aliexpress.com/item/[\\-0-9/A-Za-z].*.html')
 PATTERN_ALIPUB_MSG = re.compile('http://ali.pub/[0-9A-Za-z].*')
-
+PATTERN_PROD_ID = re.compile('[0-9]{11}.html')
 
 def get_id_alipub(link):
     req = requests.get(link)
     soup = BeautifulSoup(req.text, "lxml")
-    product_id = soup.find(property='al:android:url')['content'].split('productId=')[1].split('&')[0] + '.html'
+    try:
+        product_id = soup.find(property='al:android:url')['content'].split('productId=')[1].split('&')[0] + '.html'
+    except TypeError:
+        product_id = PATTERN_PROD_ID.findall(soup.get_text())
+        if product_id:
+            product_id = product_id[0]
     return product_id
+
 
 
 def get_id_sclick(link):
