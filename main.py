@@ -13,6 +13,7 @@ print(bot.get_me())
 alibigshop_id = str(-1001201269123)
 ali_toy_id = str(-1001475664667)
 alisextoys_id = str(-1001120312353)
+aliexpress_cars_id = str(-1001453028896)
 
 # hash от ePN для создания партнерской ссылки
 deeplink_hash = os.environ.get('DEEPLINK')
@@ -131,7 +132,10 @@ def send_parsed_message(message, html_prod_id):
                                                                                                       + alibigshop_id + '::' + filename)
         sex_channel_button = telebot.types.InlineKeyboardButton(text='@alisextoys', callback_data='@alisextoys::'
                                                                                                   + alisextoys_id + '::' + filename)
-        keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button)
+        car_channel_button = telebot.types.InlineKeyboardButton(text='@aliexpress_cars',
+                                                                callback_data='@aliexpress_cars::'
+                                                                              + aliexpress_cars_id + '::' + filename)
+        keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button, car_channel_button)
         bot.send_photo(message.chat.id, product_img_url, box_smile + ' ' + title + '\n'
                        + dollar_bag_smile + ' ' + price + '\n'
                        + star_smile + ' ' + product_rating + '\n'
