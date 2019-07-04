@@ -102,7 +102,10 @@ def get_short_link(long_link):
     }
     response = requests.post(get_url_link, data=form_data)
     soap = BeautifulSoup(response.text, "lxml")
-    result = soap.find('div', {'class': 'result'}).text.split('Сокращение: ')[1].strip()
+    try:
+        result = soap.find('div', {'class': 'result'}).text.split('Сокращение: ')[1].strip()
+    except AttributeError:
+        result = long_link
     return result
 
 
