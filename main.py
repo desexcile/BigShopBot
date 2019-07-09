@@ -14,6 +14,7 @@ alibigshop_id = str(-1001201269123)
 ali_toy_id = str(-1001475664667)
 alisextoys_id = str(-1001120312353)
 aliexpress_cars_id = str(-1001453028896)
+op7acc_id = str(-1001290739042)
 
 # hash от ePN для создания партнерской ссылки
 deeplink_hash = os.environ.get('DEEPLINK')
@@ -138,7 +139,10 @@ def send_parsed_message(message, html_prod_id):
         car_channel_button = telebot.types.InlineKeyboardButton(text='@aliexpress_cars',
                                                                 callback_data='@aliexpress_cars::'
                                                                               + aliexpress_cars_id + '::' + filename)
-        keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button, car_channel_button)
+        op7_channel_button = telebot.types.InlineKeyboardButton(text='@oneplus7acc',
+                                                                callback_data='@oneplus7acc::'
+                                                                              + op7acc_id + '::' + filename)
+        keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button, car_channel_button, op7_channel_button)
         bot.send_photo(message.chat.id, product_img_url, box_smile + ' ' + title + '\n'
                        + dollar_bag_smile + ' ' + price + '\n'
                        + star_smile + ' ' + product_rating + '\n'
@@ -156,19 +160,22 @@ def handle_start(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
-    data_list = call.data.split('::')
-    channel_name = data_list[0]
-    channel_id = data_list[1]
-    filename = data_list[2]
-    file = open(filename, 'r')
-    product_data = json.loads(file.read())
-    file.close()
-    bot.send_photo(int(channel_id), product_data['img'], box_smile + ' ' + product_data['title'] + '\n'
-                   + dollar_bag_smile + ' ' + product_data['price'] + '\n'
-                   + star_smile + ' ' + product_data['rating'] + '\n'
-                   + review_smile + ' ' + product_data['reviews'] + '\n'
-                   + link_smile + ' ' + product_data['short_url'], parse_mode="HTML")
-    bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
+    if call.message.chat.id == 109964287 or call.message.chat.id == 39089088 or call.message.chat.id == 101065511:
+        data_list = call.data.split('::')
+        channel_name = data_list[0]
+        channel_id = data_list[1]
+        filename = data_list[2]
+        file = open(filename, 'r')
+        product_data = json.loads(file.read())
+        file.close()
+        bot.send_photo(int(channel_id), product_data['img'], box_smile + ' ' + product_data['title'] + '\n'
+                      + dollar_bag_smile + ' ' + product_data['price'] + '\n'
+                      + star_smile + ' ' + product_data['rating'] + '\n'
+                      + review_smile + ' ' + product_data['reviews'] + '\n'
+                      + link_smile + ' ' + product_data['short_url'], parse_mode="HTML")
+        bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
+    else:
+        bot.send_message(call.message.chat.id, 'Ненененене')
 
 
 @bot.message_handler(content_types=['text'])
