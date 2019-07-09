@@ -154,12 +154,13 @@ def send_parsed_message(message, html_prod_id):
 
 @bot.message_handler(commands=['start'])
 def handle_start(message):
-    msg = 'Привет, заходи на мои каналы с подборками товаров с Aliexpress!\n
-           @alibigshop - Разные товары\n
-           @ali_toy - Игрушки и товары для детей\n
-           @alisextoys - 18+\n
-           @aliexpress_cars - Всё для автомобилей\n
-           @oneplus7acc - Аксессуары для OnePlus7 И 7pro'
+    line1 = 'Привет, заходи на мои каналы с подборками товаров с Aliexpress!\n'
+    line2 = '@alibigshop - Разные товары\n'
+    line3 = '@ali_toy - Игрушки и товары для детей\n'
+    line4 = '@alisextoys - 18+\n'
+    line5 = '@aliexpress_cars - Всё для автомобилей\n'
+    line6 = '@oneplus7acc - Аксессуары для OnePlus7 И 7pro'
+    msg = line1+line2+line3+line4+line5+line6
     bot.send_message(message.from_user.id, msg)
 
 
