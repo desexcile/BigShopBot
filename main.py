@@ -44,7 +44,6 @@ def get_id_alipub(link):
     return product_id
 
 
-
 def get_id_sclick(link):
     req = requests.get(link)
     soup = BeautifulSoup(req.text, "lxml")
@@ -110,6 +109,26 @@ def get_short_link(long_link):
     return result
 
 
+def create_button(btn_text, btn_ch_id, filename):
+    btn = telebot.types.InlineKeyboardButton(text=btn_text,
+                                             callback_data=btn_text + '::' + btn_ch_id + '::' + filename)
+    return btn
+
+
+def inline_markup_keyboard(filename):
+    keyboard = telebot.types.InlineKeyboardMarkup()
+    toy_channel_button = create_button('@ali_toy', ali_toy_id, filename)
+    bigshop_channel_button = create_button('@alibigshop', alibigshop_id, filename)
+    sex_channel_button = create_button('@alisextoys', alisextoys_id, filename)
+    car_channel_button = create_button('@aliexpress_cars', aliexpress_cars_id, filename)
+    op7_channel_button = create_button('@oneplus7acc', op7acc_id, filename)
+    edit_button = telebot.types.InlineKeyboardButton(text='Изменить описание', callback_data='edit::' + filename)
+    keyboard.row(bigshop_channel_button, toy_channel_button, sex_channel_button)
+    keyboard.row(car_channel_button, op7_channel_button)
+    keyboard.row(edit_button)
+    return keyboard
+
+
 def send_parsed_message(message, html_prod_id):
     product_reviews, product_rating, product_img_url, title, product_full_url, price = get_prod_info(
         html_prod_id)
@@ -124,30 +143,19 @@ def send_parsed_message(message, html_prod_id):
                                    'price': price,
                                    'rating': product_rating,
                                    'reviews': product_reviews,
-                                   'short_url': short_link})
+                                   'short_url': short_link,
+                                   'promo_url': promo_link})
         filename = short_link.split('/')[-1] + '.txt'
         file = open(filename, 'w')
         file.write(product_data)
         file.close()
-        keyboard = telebot.types.InlineKeyboardMarkup()
-        toy_channel_button = telebot.types.InlineKeyboardButton(text='@ali_toy', callback_data='@ali_toy::'
-                                                                                               + ali_toy_id + '::' + filename)
-        bigshop_channel_button = telebot.types.InlineKeyboardButton(text='@alibigshop', callback_data='@alibigshop::'
-                                                                                                      + alibigshop_id + '::' + filename)
-        sex_channel_button = telebot.types.InlineKeyboardButton(text='@alisextoys', callback_data='@alisextoys::'
-                                                                                                  + alisextoys_id + '::' + filename)
-        car_channel_button = telebot.types.InlineKeyboardButton(text='@aliexpress_cars',
-                                                                callback_data='@aliexpress_cars::'
-                                                                              + aliexpress_cars_id + '::' + filename)
-        op7_channel_button = telebot.types.InlineKeyboardButton(text='@oneplus7acc',
-                                                                callback_data='@oneplus7acc::'
-                                                                              + op7acc_id + '::' + filename)
-        keyboard.add(bigshop_channel_button, toy_channel_button, sex_channel_button, car_channel_button, op7_channel_button)
+        keyboard = inline_markup_keyboard(filename)
         bot.send_photo(message.chat.id, product_img_url, box_smile + ' ' + title + '\n'
                        + dollar_bag_smile + ' ' + price + '\n'
                        + star_smile + ' ' + product_rating + '\n'
                        + review_smile + ' ' + product_reviews + '\n'
-                       + link_smile + ' ' + short_link, parse_mode="HTML", reply_markup=keyboard)
+                       + link_smile + ' ' + short_link + '\n'
+                       + promo_link, parse_mode="HTML", reply_markup=keyboard)
     else:
         bot.send_message(message.chat.id, 'Не могу достать данные о товаре, попробуйте другой товар.')
 
@@ -160,26 +168,51 @@ def handle_start(message):
     line4 = '@alisextoys - 18+\n'
     line5 = '@aliexpress_cars - Всё для автомобилей\n'
     line6 = '@oneplus7acc - Аксессуары для OnePlus7 И 7pro'
-    msg = line1+line2+line3+line4+line5+line6
-    bot.send_message(message.from_user.id, msg)
+    msg = line1 + line2 + line3 + line4 + line5 + line6
+    remover = telebot.types.ReplyKeyboardRemove()
+    bot.send_message(message.from_user.id, msg, reply_markup=remover)
+
+
+def edit_about(message, filename, m_id):
+    file = open(filename, 'r')
+    product_data = json.loads(file.read())
+    file.close()
+    product_data['title'] = message.text
+    file = open(filename, 'w')
+    file.write(json.dumps(product_data))
+    file.close()
+    keyboard = inline_markup_keyboard(filename)
+    bot.edit_message_caption(chat_id=message.chat.id, message_id=m_id,
+                             caption=box_smile + ' ' + product_data['title'] + '\n'
+                             + dollar_bag_smile + ' ' + product_data['price'] + '\n'
+                             + star_smile + ' ' + product_data['rating'] + '\n'
+                             + review_smile + ' ' + product_data['reviews'] + '\n'
+                             + link_smile + ' ' + product_data['short_url'] + '\n'
+                             + product_data['promo_url'], reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     if call.message.chat.id == 109964287 or call.message.chat.id == 39089088 or call.message.chat.id == 101065511:
         data_list = call.data.split('::')
-        channel_name = data_list[0]
-        channel_id = data_list[1]
-        filename = data_list[2]
-        file = open(filename, 'r')
-        product_data = json.loads(file.read())
-        file.close()
-        bot.send_photo(int(channel_id), product_data['img'], box_smile + ' ' + product_data['title'] + '\n'
-                      + dollar_bag_smile + ' ' + product_data['price'] + '\n'
-                      + star_smile + ' ' + product_data['rating'] + '\n'
-                      + review_smile + ' ' + product_data['reviews'] + '\n'
-                      + link_smile + ' ' + product_data['short_url'], parse_mode="HTML")
-        bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
+        if data_list[0] == 'edit':
+            filename = data_list[1]
+            bot.send_message(call.message.chat.id, 'Ввведи новое описание')
+            bot.register_next_step_handler(call.message, edit_about, filename, call.message.message_id)
+        else:
+            channel_name = data_list[0]
+            channel_id = data_list[1]
+            filename = data_list[2]
+            file = open(filename, 'r')
+            product_data = json.loads(file.read())
+            file.close()
+            bot.send_photo(int(channel_id), product_data['img'], box_smile + ' ' + product_data['title'] + '\n'
+                           + dollar_bag_smile + ' ' + product_data['price'] + '\n'
+                           + star_smile + ' ' + product_data['rating'] + '\n'
+                           + review_smile + ' ' + product_data['reviews'] + '\n'
+                           + link_smile + ' ' + product_data['short_url'], parse_mode="HTML")
+            bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
+
     else:
         bot.send_message(call.message.chat.id, 'Ненененене')
 
