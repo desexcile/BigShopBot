@@ -197,7 +197,7 @@ def callback_inline(call):
         data_list = call.data.split('::')
         if data_list[0] == 'edit':
             filename = data_list[1]
-            bot.send_message(call.message.chat.id, 'Ввведи новое описание')
+            bot.send_message(call.message.chat.id, 'Введи новое описание')
             bot.register_next_step_handler(call.message, edit_about, filename, call.message.message_id)
         else:
             channel_name = data_list[0]
