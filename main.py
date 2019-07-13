@@ -57,6 +57,23 @@ def get_id_html(link):
     return product_id
 
 
+def get_usd_price(m_url):
+    cookie = {'aep_usuc_f': 'site=rus&c_tp=USD&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
+              'xman_us_f': 'x_locale=ru_RU&x_l=0'}
+    m_req = requests.get(m_url, cookies=cookie)
+    m_soup = BeautifulSoup(m_req.text, "lxml")
+    data_json = json.loads(m_soup.find('script').text.strip())
+    try:
+        current_price = data_json['offers']['price'] + ' ' + data_json['offers']['priceCurrency']
+    except KeyError:
+        try:
+            current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
+                        ' ' + data_json['offers']['priceCurrency']
+        except KeyError:
+            current_price = ''
+    return current_price
+
+
 # Преобразовываем ссылку в мобильную версию, переходим по ней и забираем информацию о товаре
 def get_prod_info(html_id):
     m_url = 'https://m.ru.aliexpress.com/item/' + html_id
@@ -90,7 +107,8 @@ def get_prod_info(html_id):
                         ' ' + data_json['offers']['priceCurrency']
         except KeyError:
             current_price = ''
-    return user_count, user_rating, img_url, rus_title, pc_url, current_price
+    usd_price = get_usd_price(m_url)
+    return user_count, user_rating, img_url, rus_title, pc_url, current_price, usd_price
 
 
 # Сокращаем промо ссылку
@@ -130,7 +148,7 @@ def inline_markup_keyboard(filename):
 
 
 def send_parsed_message(message, html_prod_id):
-    product_reviews, product_rating, product_img_url, title, product_full_url, price = get_prod_info(
+    product_reviews, product_rating, product_img_url, title, product_full_url, price, usd_price = get_prod_info(
         html_prod_id)
     if title and product_img_url and price:
         # Получаем числовой ID Товара для создания промо ссылки
@@ -144,7 +162,8 @@ def send_parsed_message(message, html_prod_id):
                                    'rating': product_rating,
                                    'reviews': product_reviews,
                                    'short_url': short_link,
-                                   'promo_url': promo_link})
+                                   'promo_url': promo_link,
+                                   'usd_price': usd_price})
         filename = short_link.split('/')[-1] + '.txt'
         file = open(filename, 'w')
         file.write(product_data)
@@ -152,6 +171,7 @@ def send_parsed_message(message, html_prod_id):
         keyboard = inline_markup_keyboard(filename)
         bot.send_photo(message.chat.id, product_img_url, box_smile + ' ' + title + '\n'
                        + dollar_bag_smile + ' ' + price + '\n'
+                       + dollar_bag_smile + ' ' + usd_price + '\n'
                        + star_smile + ' ' + product_rating + '\n'
                        + review_smile + ' ' + product_reviews + '\n'
                        + link_smile + ' ' + short_link + '\n'
@@ -185,6 +205,7 @@ def edit_about(message, filename, m_id):
     bot.edit_message_caption(chat_id=message.chat.id, message_id=m_id,
                              caption=box_smile + ' ' + product_data['title'] + '\n'
                              + dollar_bag_smile + ' ' + product_data['price'] + '\n'
+                             + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
                              + star_smile + ' ' + product_data['rating'] + '\n'
                              + review_smile + ' ' + product_data['reviews'] + '\n'
                              + link_smile + ' ' + product_data['short_url'] + '\n'
@@ -208,6 +229,7 @@ def callback_inline(call):
             file.close()
             bot.send_photo(int(channel_id), product_data['img'], box_smile + ' ' + product_data['title'] + '\n'
                            + dollar_bag_smile + ' ' + product_data['price'] + '\n'
+                           + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
                            + star_smile + ' ' + product_data['rating'] + '\n'
                            + review_smile + ' ' + product_data['reviews'] + '\n'
                            + link_smile + ' ' + product_data['short_url'], parse_mode="HTML")
