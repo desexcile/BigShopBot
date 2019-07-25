@@ -175,7 +175,7 @@ def send_parsed_message(message, html_prod_id):
                        + star_smile + ' ' + product_rating + '\n'
                        + review_smile + ' ' + product_reviews + '\n'
                        + link_smile + ' ' + short_link + '\n'
-                       + promo_link, parse_mode="HTML", reply_markup=keyboard)
+                       + promo_link, parse_mode="markdown", reply_markup=keyboard)
     else:
         bot.send_message(message.chat.id, 'Не могу достать данные о товаре, попробуйте другой товар.')
 
@@ -209,7 +209,7 @@ def edit_about(message, filename, m_id):
                              + star_smile + ' ' + product_data['rating'] + '\n'
                              + review_smile + ' ' + product_data['reviews'] + '\n'
                              + link_smile + ' ' + product_data['short_url'] + '\n'
-                             + product_data['promo_url'], reply_markup=keyboard)
+                             + product_data['promo_url'], parse_mode="markdown", reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -232,7 +232,7 @@ def callback_inline(call):
                            + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
                            + star_smile + ' ' + product_data['rating'] + '\n'
                            + review_smile + ' ' + product_data['reviews'] + '\n'
-                           + link_smile + ' ' + product_data['short_url'], parse_mode="HTML")
+                           + link_smile + ' ' + product_data['short_url'], parse_mode="markdown")
             bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
 
     else:
