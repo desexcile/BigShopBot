@@ -12,7 +12,7 @@ print(bot.get_me())
 
 alibigshop_id = str(-1001201269123)
 ali_toy_id = str(-1001475664667)
-alisextoys_id = str(-1001120312353)
+xiaomiacc_id = str(-1001438676034)
 aliexpress_cars_id = str(-1001453028896)
 op7acc_id = str(-1001290739042)
 
@@ -137,11 +137,11 @@ def inline_markup_keyboard(filename):
     keyboard = telebot.types.InlineKeyboardMarkup()
     toy_channel_button = create_button('@ali_toy', ali_toy_id, filename)
     bigshop_channel_button = create_button('@alibigshop', alibigshop_id, filename)
-    sex_channel_button = create_button('@alisextoys', alisextoys_id, filename)
+    xiaomi_channel_button = create_button('@xiaomiacc', xiaomiacc_id, filename)
     car_channel_button = create_button('@aliexpress_cars', aliexpress_cars_id, filename)
     op7_channel_button = create_button('@oneplus7acc', op7acc_id, filename)
     edit_button = telebot.types.InlineKeyboardButton(text='Изменить описание', callback_data='edit::' + filename)
-    keyboard.row(bigshop_channel_button, toy_channel_button, sex_channel_button)
+    keyboard.row(bigshop_channel_button, toy_channel_button, xiaomi_channel_button)
     keyboard.row(car_channel_button, op7_channel_button)
     keyboard.row(edit_button)
     return keyboard
@@ -185,7 +185,7 @@ def handle_start(message):
     line1 = 'Привет, заходи на мои каналы с подборками товаров с Aliexpress!\n'
     line2 = '@alibigshop - Разные товары\n'
     line3 = '@ali_toy - Игрушки и товары для детей\n'
-    line4 = '@alisextoys - 18+\n'
+    line4 = '@xiaomiacc - Аксессуары для Xiaomi\n'
     line5 = '@aliexpress_cars - Всё для автомобилей\n'
     line6 = '@oneplus7acc - Аксессуары для OnePlus7 И 7pro'
     msg = line1 + line2 + line3 + line4 + line5 + line6
