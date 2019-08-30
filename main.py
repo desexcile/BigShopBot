@@ -145,9 +145,9 @@ def inline_markup_keyboard(filename):
     iphone_channel_button = create_button('@iphoneacc', iphoneacc_id, filename)
     sgs_channel_button = create_button('@sgsacc', sgsacc_id, filename)
     edit_button = telebot.types.InlineKeyboardButton(text='Изменить описание', callback_data='edit::' + filename)
-    keyboard.row(bigshop_channel_button, toy_channel_button, xiaomi_channel_button)
+    keyboard.row(bigshop_channel_button, toy_channel_button, car_channel_button)
     keyboard.row(iphone_channel_button, sgs_channel_button)
-    keyboard.row(car_channel_button, op7_channel_button)
+    keyboard.row(xiaomi_channel_button, op7_channel_button)
     keyboard.row(edit_button)
     return keyboard
 
