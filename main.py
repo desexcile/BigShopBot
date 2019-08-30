@@ -6,7 +6,6 @@ import time
 import re
 import os
 
-
 bot = telebot.TeleBot(os.environ.get('TOKEN'))
 print(bot.get_me())
 
@@ -15,6 +14,8 @@ ali_toy_id = str(-1001475664667)
 xiaomiacc_id = str(-1001438676034)
 aliexpress_cars_id = str(-1001453028896)
 op7acc_id = str(-1001290739042)
+iphoneacc_id = str(-1001419650223)
+sgsacc_id = str(-1001183912718)
 
 # hash от ePN для создания партнерской ссылки
 deeplink_hash = os.environ.get('DEEPLINK')
@@ -31,6 +32,7 @@ PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[A-Za
 PATTERN_HTML_MSG = re.compile('https://ru.aliexpress.com/item/[\\-0-9/A-Za-z].*.html')
 PATTERN_ALIPUB_MSG = re.compile('http://ali.pub/[0-9A-Za-z].*')
 PATTERN_PROD_ID = re.compile('[0-9]{11}.html')
+
 
 def get_id_alipub(link):
     req = requests.get(link)
@@ -68,7 +70,7 @@ def get_usd_price(m_url):
     except KeyError:
         try:
             current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
-                        ' ' + data_json['offers']['priceCurrency']
+                            ' ' + data_json['offers']['priceCurrency']
         except KeyError:
             current_price = ''
     return current_price
@@ -104,7 +106,7 @@ def get_prod_info(html_id):
     except KeyError:
         try:
             current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
-                        ' ' + data_json['offers']['priceCurrency']
+                            ' ' + data_json['offers']['priceCurrency']
         except KeyError:
             current_price = ''
     usd_price = get_usd_price(m_url)
@@ -140,8 +142,11 @@ def inline_markup_keyboard(filename):
     xiaomi_channel_button = create_button('@xiaomiacc', xiaomiacc_id, filename)
     car_channel_button = create_button('@aliexpress_cars', aliexpress_cars_id, filename)
     op7_channel_button = create_button('@oneplus7acc', op7acc_id, filename)
+    iphone_channel_button = create_button('@iphoneacc', iphoneacc_id, filename)
+    sgs_channel_button = create_button('@sgsacc', sgsacc_id, filename)
     edit_button = telebot.types.InlineKeyboardButton(text='Изменить описание', callback_data='edit::' + filename)
     keyboard.row(bigshop_channel_button, toy_channel_button, xiaomi_channel_button)
+    keyboard.row(iphone_channel_button, sgs_channel_button)
     keyboard.row(car_channel_button, op7_channel_button)
     keyboard.row(edit_button)
     return keyboard
@@ -185,10 +190,12 @@ def handle_start(message):
     line1 = 'Привет, заходи на мои каналы с подборками товаров с Aliexpress!\n'
     line2 = '@alibigshop - Разные товары\n'
     line3 = '@ali_toy - Игрушки и товары для детей\n'
-    line4 = '@xiaomiacc - Аксессуары для Xiaomi\n'
-    line5 = '@aliexpress_cars - Всё для автомобилей\n'
-    line6 = '@oneplus7acc - Аксессуары для OnePlus7 И 7pro'
-    msg = line1 + line2 + line3 + line4 + line5 + line6
+    line4 = '@aliexpress_cars - Всё для автомобилей\n'
+    line5 = '@xiaomiacc - Аксессуары для Xiaomi\n'
+    line6 = '@iphoneacc - Аксессуары для iPhone\n'
+    line7 = '@sgsacc - Аксессуары для Samsung\n'
+    line8 = '@oneplus7acc - Аксессуары для OnePlus7 И 7pro'
+    msg = line1 + line2 + line3 + line4 + line5 + line6 + line7 + line8
     remover = telebot.types.ReplyKeyboardRemove()
     bot.send_message(message.from_user.id, msg, reply_markup=remover)
 
@@ -204,12 +211,12 @@ def edit_about(message, filename, m_id):
     keyboard = inline_markup_keyboard(filename)
     bot.edit_message_caption(chat_id=message.chat.id, message_id=m_id,
                              caption=box_smile + ' ' + product_data['title'] + '\n'
-                             + dollar_bag_smile + ' ' + product_data['price'] + '\n'
-                             + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
-                             + star_smile + ' ' + product_data['rating'] + '\n'
-                             + review_smile + ' ' + product_data['reviews'] + '\n'
-                             + link_smile + ' ' + product_data['short_url'] + '\n'
-                             + product_data['promo_url'], parse_mode="markdown", reply_markup=keyboard)
+                                     + dollar_bag_smile + ' ' + product_data['price'] + '\n'
+                                     + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
+                                     + star_smile + ' ' + product_data['rating'] + '\n'
+                                     + review_smile + ' ' + product_data['reviews'] + '\n'
+                                     + link_smile + ' ' + product_data['short_url'] + '\n'
+                                     + product_data['promo_url'], parse_mode="markdown", reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: True)
