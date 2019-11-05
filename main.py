@@ -16,6 +16,7 @@ aliexpress_cars_id = str(-1001453028896)
 op7acc_id = str(-1001290739042)
 iphoneacc_id = str(-1001419650223)
 sgsacc_id = str(-1001183912718)
+huaweiacc_id = str(-1001331199379)
 
 # hash от ePN для создания партнерской ссылки
 deeplink_hash = os.environ.get('DEEPLINK')
@@ -144,9 +145,10 @@ def inline_markup_keyboard(filename):
     op7_channel_button = create_button('@oneplus7acc', op7acc_id, filename)
     iphone_channel_button = create_button('@iphoneacc', iphoneacc_id, filename)
     sgs_channel_button = create_button('@sgsacc', sgsacc_id, filename)
+    huawei_channel_button = create_button('@huaweiacc', huaweiacc_id, filename)
     edit_button = telebot.types.InlineKeyboardButton(text='Изменить описание', callback_data='edit::' + filename)
     keyboard.row(bigshop_channel_button, toy_channel_button, car_channel_button)
-    keyboard.row(iphone_channel_button, sgs_channel_button)
+    keyboard.row(iphone_channel_button, sgs_channel_button, huawei_channel_button)
     keyboard.row(xiaomi_channel_button, op7_channel_button)
     keyboard.row(edit_button)
     return keyboard
@@ -194,8 +196,9 @@ def handle_start(message):
     line5 = '@xiaomiacc - Аксессуары для Xiaomi\n'
     line6 = '@iphoneacc - Аксессуары для iPhone\n'
     line7 = '@sgsacc - Аксессуары для Samsung\n'
-    line8 = '@oneplus7acc - Аксессуары для OnePlus7 И 7pro'
-    msg = line1 + line2 + line3 + line4 + line5 + line6 + line7 + line8
+    line8 = '@oneplus7acc - Аксессуары для OnePlus 7/T/Pro series\n'
+    line9 = '@huaweiacc - Аксессуары для Huawei и Honor'
+    msg = line1 + line2 + line3 + line4 + line5 + line6 + line7 + line8 + line9
     remover = telebot.types.ReplyKeyboardRemove()
     bot.send_message(message.from_user.id, msg, reply_markup=remover)
 
