@@ -65,7 +65,10 @@ def get_usd_price(m_url):
               'xman_us_f': 'x_locale=ru_RU&x_l=0'}
     m_req = requests.get(m_url, cookies=cookie)
     m_soup = BeautifulSoup(m_req.text, "lxml")
-    data_json = json.loads(m_soup.find('script').text.strip())
+    try:
+        data_json = json.loads(m_soup.find('script').text.strip())
+    except Exception:
+        current_price = ''
     try:
         current_price = data_json['offers']['price'] + ' ' + data_json['offers']['priceCurrency']
     except KeyError:
