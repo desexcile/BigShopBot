@@ -89,7 +89,7 @@ def get_prod_info(html_id):
     m_req = requests.get(m_url, cookies=cookie)
     m_soup = BeautifulSoup(m_req.text, "lxml")
     sss = m_soup.find('script').text.strip()
-    print(sss)
+    print('Нужная строка джсон', sss)
     data_json = json.loads(sss)
     try:
         img_url = data_json['image']
