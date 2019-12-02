@@ -2,4 +2,3 @@ bs4
 pyTelegramBotAPI
 requests
 lxml
-json
