@@ -88,7 +88,9 @@ def get_prod_info(html_id):
               'xman_us_f': 'x_locale=ru_RU&x_l=0'}
     m_req = requests.get(m_url, cookies=cookie)
     m_soup = BeautifulSoup(m_req.text, "lxml")
-    data_json = json.loads(m_soup.find('script').text.strip())
+    sss = m_soup.find('script').text.strip()
+    print(sss)
+    data_json = json.loads(sss)
     try:
         img_url = data_json['image']
     except KeyError:
