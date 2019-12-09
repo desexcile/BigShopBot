@@ -263,7 +263,14 @@ def handle_command(message):
             print(url)
             for i in url:
                 html_id = get_id_sclick(i)
-                send_parsed_message(message, html_id)
+                try:
+                    send_parsed_message(message, html_id)
+                except Exception:
+                    prod_id = html_id.split('.')[0]
+                    # Создаем промо ссылку для последующего укорачивания
+                    promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
+                    short_link = get_short_link(promo_link)
+                    bot.send_message(message.chat.id, short_link)
         elif PATTERN_HTML_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 2')
             url = PATTERN_HTML_MSG.findall(message.text)
