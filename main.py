@@ -29,8 +29,8 @@ review_smile = u'\U0001F4AC'
 box_smile = u'\U0001F4E6'
 link_smile = u'\U0001F449'
 
-PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[A-Za-z0-9].*')
-PATTERN_HTML_MSG = re.compile('https://ru.aliexpress.com/item/[\\-0-9/A-Za-z].*.html')
+PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[A-Za-z0-9_].*')
+PATTERN_HTML_MSG = re.compile('https://[ru.a].*liexpress.[comru]/item/[\\-0-9/A-Za-z].*.html')
 PATTERN_ALIPUB_MSG = re.compile('http://ali.pub/[0-9A-Za-z].*')
 PATTERN_PROD_ID = re.compile('[0-9]{11}.html')
 
