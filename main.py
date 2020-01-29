@@ -229,7 +229,7 @@ def edit_about(message, filename, m_id):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
-    if call.message.chat.id == 109964287 or call.message.chat.id == 39089088 or call.message.chat.id == 101065511:
+    if call.message.chat.id == 109964287 or call.message.chat.id == 39089088 or call.message.chat.id == 101065511 or call.message.chat.id == 27825292:
         data_list = call.data.split('::')
         if data_list[0] == 'edit':
             filename = data_list[1]
