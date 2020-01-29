@@ -256,7 +256,7 @@ def callback_inline(call):
 
 @bot.message_handler(content_types=['text'])
 def handle_command(message):
-    if message.chat.id == 109964287 or message.chat.id == 39089088 or message.chat.id == 101065511:
+    if message.chat.id == 109964287 or message.chat.id == 39089088 or message.chat.id == 101065511 or message.chat.id == 27825292:
         if PATTERN_SCLICK_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 1')
             url = PATTERN_SCLICK_MSG.findall(message.text)
