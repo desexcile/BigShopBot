@@ -177,6 +177,31 @@ def inline_markup_keyboard(filename):
     return keyboard
 
 
+def add_auto_hashtags(text):
+    hashtags = ['силикон', 'карбон', 'бампер', 'кольцо', 'магнит', 'провод', 'кабель', 'переходник', 'flip',
+                'флип', 'ugreen', 'aptx', 'bluetooth', 'вкладыши', 'наушники', 'tws', 'накладка', 'принт', 'корпус',
+                'пленка', 'прозрачный', 'защитный', 'hdmi', 'кожа', 'пластик', 'повербанк', 'dash', 'warp', 'qc',
+                'конвертер', 'адаптер', 'aux', 'стекло', 'кожаный', 'ткань', 'нейлон', 'msvii', 'spigen', 'mofi',
+                'nillkin', 'замша', 'гидрогель', 'гибрид']
+
+    hashtags_dict = {'#typec': 'Type-C', '#35jack': '3.5mm', '#op5': '5/', '#op5t': '5t', '#op6': '6/', '#op6t': '6t',
+                     '#op7': '7/', '#op7t': '7t/', '#op7pro': '7Pro', '#op7tpro': '7TPro'}
+
+    add_list = []
+
+    for i in hashtags:
+        if re.match('.*' + i + '.*', text, re.IGNORECASE):
+            i = '#' + i
+            add_list.append(i)
+
+    for key, value in hashtags_dict.items():
+        if re.match('.*' + value + '.*', text, re.IGNORECASE):
+            add_list.append(key)
+
+    hash_list = (' ').join(add_list)
+    return hash_list
+
+
 def send_parsed_message(message, html_prod_id):
     product_reviews, product_rating, product_img_url, title, product_full_url, price, usd_price = get_prod_info(
         html_prod_id)
@@ -230,7 +255,8 @@ def edit_about(message, filename, m_id):
     file = open(filename, 'r')
     product_data = json.loads(file.read())
     file.close()
-    product_data['title'] = message.text
+    hashtags = add_auto_hashtags(message.text)
+    product_data['title'] = message.text + '\n' + hashtags
     file = open(filename, 'w')
     file.write(json.dumps(product_data))
     file.close()
