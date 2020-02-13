@@ -65,7 +65,7 @@ def get_id_sclick(link):
     if product_id_1:
         return product_id_1
     elif product_id_2:
-        ruturn product_id_2
+        return product_id_2
     elif product_id_3:
         return product_id_3
     else:
