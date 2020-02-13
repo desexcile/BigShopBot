@@ -30,7 +30,7 @@ box_smile = u'\U0001F4E6'
 link_smile = u'\U0001F449'
 
 PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[_A-Za-z0-9].*')
-PATTERN_HTML_MSG = re.compile('https://m.aliexpress.ru/item/[\\-0-9/A-Za-z].*.html')
+PATTERN_HTML_MSG = re.compile('/item/[\\-0-9/A-Za-z].*.html')
 PATTERN_ALIPUB_MSG = re.compile('http://ali.pub/[0-9A-Za-z].*')
 PATTERN_PROD_ID = re.compile('[0-9].*.html')
 
@@ -303,7 +303,11 @@ def handle_command(message):
                 send_parsed_message(message, html_id)
         elif PATTERN_PROD_ID.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 4')
-            send_parsed_message(message, message.text)
+            if re.match(".*aliexpress.*", PATTERN_PROD_ID.findall(message.text)[0]):
+                product_id = PATTERN_PROD_ID.findall(message.text)[0].split('2F')[-1]
+                send_parsed_message(message, product_id)
+            else:
+                send_parsed_message(message, message.text)
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
             print(str(message.chat.id) + ':' + message.text + ' Кривая ссылка')
