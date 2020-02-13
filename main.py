@@ -50,9 +50,26 @@ def get_id_alipub(link):
 def get_id_sclick(link):
     req = requests.get(link)
     soup = BeautifulSoup(req.text, "lxml")
-    #product_id = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
-    product_id = soup.find(rel='alternate', hreflang='ru')['href'].split('/')[-1]
-    return product_id
+    try:
+        product_id_1 = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
+    except Exception:
+        product_id_1 = ''
+    try:
+        product_id_2 = soup.find(rel='alternate', hreflang='ru')['href'].split('/')[-1]
+    except Exception:
+        product_id_2 = ''
+    try:
+        product_id_3 = soup.find(property='og:url')['content'].split("rdtUrl=")[1].split('%3Fsrc')[0].split('2F')[-1]
+    except Exception:
+        product_id_3 = ''
+    if product_id_1:
+        return product_id_1
+    elif product_id_2:
+        ruturn product_id_2
+    elif product_id_3:
+        return product_id_3
+    else:
+        return "maintain.html"
 
 
 def get_id_html(link):
@@ -284,6 +301,9 @@ def handle_command(message):
             for i in url:
                 html_id = get_id_alipub(i)
                 send_parsed_message(message, html_id)
+        elif PATTERN_PROD_ID.findall(message.text):
+            print(str(message.chat.id) + ':' + message.text + ' 4')
+            send_parsed_message(message, message.text)
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
             print(str(message.chat.id) + ':' + message.text + ' Кривая ссылка')
