@@ -209,7 +209,10 @@ def send_parsed_message(message, html_prod_id):
         # Получаем числовой ID Товара для создания промо ссылки
         prod_id = html_prod_id.split('.')[0]
         # Создаем промо ссылку для последующего укорачивания
-        promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
+        if message.chat.id == 101065511:
+            promo_link = 'http://alipromo.com/redirect/cpa/o/' + deeplink_hash + '/?sub=yana&to=https://m.aliexpress.ru/item/' + prod_id + '.html'
+        else:
+            promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
         short_link = get_short_link(promo_link)
         product_data = json.dumps({'img': product_img_url,
                                    'title': title,
