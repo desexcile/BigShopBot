@@ -87,7 +87,7 @@ def get_id_sclick(link):
     #    return product_id_2
     #elif product_id_3:
     #    return product_id_3
-    if produc_id:
+    if product_id:
         return product_id
     else:
         return "maintain.html"
