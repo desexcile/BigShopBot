@@ -33,6 +33,7 @@ PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[_A-Z
 PATTERN_HTML_MSG = re.compile('/item/[\\-0-9/A-Za-z].*.html')
 PATTERN_ALIPUB_MSG = re.compile('http://ali.pub/[0-9A-Za-z].*')
 PATTERN_PROD_ID = re.compile('[0-9].*.html')
+PATTERN_AALI_MSG = re.compile('https://a.aliexpress.ru/.*')
 
 
 def get_id_alipub(link):
@@ -45,6 +46,19 @@ def get_id_alipub(link):
         if product_id:
             product_id = product_id[0]
     return product_id
+
+
+def get_id_aali(link):
+    req = requests.get(link)
+    soup = BeautifulSoup(req.text, "lxml")
+    try:
+        product_id = re.findall('item/[0-9].*.html', soup.text)
+    except Exception:
+        product_id = []
+    if product_id:
+        return product_id[0].split('item/')[1]
+    else:
+        return product_id
 
 
 def get_id_sclick(link):
@@ -210,7 +224,8 @@ def send_parsed_message(message, html_prod_id):
         prod_id = html_prod_id.split('.')[0]
         # Создаем промо ссылку для последующего укорачивания
         if message.chat.id == 101065511:
-            promo_link = 'http://alipromo.com/redirect/cpa/o/' + deeplink_hash + '/?sub=yana&to=https://m.aliexpress.ru/item/' + prod_id + '.html'
+            promo_link = 'http://alipromo.com/redirect/cpa/o/' + deeplink_hash + \
+                         '/?sub=yana&to=https://m.aliexpress.ru/item/' + prod_id + '.html'
         else:
             promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
         short_link = get_short_link(promo_link)
@@ -259,7 +274,10 @@ def edit_about(message, filename, m_id):
     product_data = json.loads(file.read())
     file.close()
     hashtags = add_auto_hashtags(message.text)
-    product_data['title'] = message.text + '\n' + hashtags
+    if hashtags:
+        product_data['title'] = message.text + '\n' + hashtags
+    else:
+        product_data['title'] = message.text
     file = open(filename, 'w')
     file.write(json.dumps(product_data))
     file.close()
@@ -337,6 +355,13 @@ def handle_command(message):
                 send_parsed_message(message, product_id)
             else:
                 send_parsed_message(message, message.text)
+        elif PATTERN_AALI_MSG.findall(message.text):
+            print(str(message.chat.id) + ':' + message.text + ' 5')
+            product_id = get_id_aali(PATTERN_AALI_MSG.findall(message.text))
+            if product_id:
+                send_parsed_message(message, product_id)
+            else:
+                bot.send_message(message.chat.id, 'Кривая ссылка')
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
             print(str(message.chat.id) + ':' + message.text + ' Кривая ссылка')
