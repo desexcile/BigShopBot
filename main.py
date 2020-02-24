@@ -209,7 +209,7 @@ def add_auto_hashtags(text):
 
     hashtags_dict = {'#typec': 'Type-C', '#35jack': '3.5mm',
                      '#op5': '5/?[^TtpP0-9]', '#op5t': '5t', '#op6': '6/?[^TtpP0-9]', '#op6t': '6t',
-                     '#op7': '7/?[^TtpP0-9]', '#op7t': '7t/?[^TtpP0-9]', '#op7pro': '7Pro', '#op7tpro': '7TPro'}
+                     '#op7': '7/?[^TtpP0-9]', '#op7t': '7t/?[^pP0-9]', '#op7pro': '7Pro', '#op7tpro': '7tPro'}
 
     add_list = []
 
