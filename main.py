@@ -66,7 +66,7 @@ def get_id_sclick(link):
     req = requests.get(link)
     soup = BeautifulSoup(req.text, "lxml")
     try:
-        product_id = re.findall('item/[0-9].*.html', soup.text).split('item/')[1]
+        product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1]
     except Exception:
         product_id = ''
     #try:
