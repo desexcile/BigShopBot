@@ -53,20 +53,20 @@ def get_id_aali(link):
     req = requests.get(link)
     soup = BeautifulSoup(req.text, "lxml")
     try:
-        product_id = re.findall('item/[0-9].*.html', soup.text)
+        product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1].split('.html')[0] + '.html'
     except Exception:
-        product_id = []
+        product_id = ''
     if product_id:
-        return product_id[0].split('item/')[1]
-    else:
         return product_id
+    else:
+        return "maintain.html"
 
 
 def get_id_sclick(link):
     req = requests.get(link)
     soup = BeautifulSoup(req.text, "lxml")
     try:
-        product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1]
+        product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1].split('.html')[0] + '.html'
     except Exception:
         product_id = ''
     #try:
