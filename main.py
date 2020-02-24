@@ -357,11 +357,14 @@ def handle_command(message):
             else:
                 send_parsed_message(message, message.text)
         elif PATTERN_AALI_MSG.findall(message.text):
-            print(str(message.chat.id) + ':' + message.text + ' 5')
-            product_id = get_id_aali(PATTERN_AALI_MSG.findall(message.text)[0])
-            if product_id:
-                send_parsed_message(message, product_id)
-            else:
+            try:
+                print(str(message.chat.id) + ':' + message.text + ' 5')
+                product_id = get_id_aali(PATTERN_AALI_MSG.findall(message.text)[0])
+                if product_id:
+                    send_parsed_message(message, product_id)
+                else:
+                    bot.send_message(message.chat.id, 'Кривая ссылка')
+            except Exception:
                 bot.send_message(message.chat.id, 'Кривая ссылка')
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
