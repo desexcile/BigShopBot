@@ -205,10 +205,11 @@ def add_auto_hashtags(text):
                 'флип', 'ugreen', 'aptx', 'bluetooth', 'вкладыши', 'наушники', 'tws', 'накладка', 'принт', 'корпус',
                 'пленка', 'прозрачный', 'защитный', 'hdmi', 'кожа', 'пластик', 'повербанк', 'dash', 'warp', 'qc',
                 'конвертер', 'адаптер', 'aux', 'стекло', 'кожаный', 'ткань', 'нейлон', 'msvii', 'spigen', 'mofi',
-                'nillkin', 'замша', 'гидрогель', 'гибрид', 'затычки']
+                'nillkin', 'замша', 'гидрогель', 'гибрид', 'затычки' 'rj45']
 
-    hashtags_dict = {'#typec': 'Type-C', '#35jack': '3.5mm', '#op5': '5/', '#op5t': '5t', '#op6': '6/', '#op6t': '6t',
-                     '#op7': '7/', '#op7t': '7t/', '#op7pro': '7Pro', '#op7tpro': '7TPro'}
+    hashtags_dict = {'#typec': 'Type-C', '#35jack': '3.5mm',
+                     '#op5': '5/?[^TtpP0-9]', '#op5t': '5t', '#op6': '6/?[^TtpP0-9]', '#op6t': '6t',
+                     '#op7': '7/?[^TtpP0-9]', '#op7t': '7t/?[^TtpP0-9]', '#op7pro': '7Pro', '#op7tpro': '7TPro'}
 
     add_list = []
 
