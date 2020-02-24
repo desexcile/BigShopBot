@@ -66,23 +66,29 @@ def get_id_sclick(link):
     req = requests.get(link)
     soup = BeautifulSoup(req.text, "lxml")
     try:
-        product_id_1 = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
+        product_id = re.findall('item/[0-9].*.html', soup.text).split('item/')[1]
     except Exception:
-        product_id_1 = ''
-    try:
-        product_id_2 = soup.find(rel='alternate', hreflang='ru')['href'].split('/')[-1]
-    except Exception:
-        product_id_2 = ''
-    try:
-        product_id_3 = soup.find(property='og:url')['content'].split("rdtUrl=")[1].split('%3Fsrc')[0].split('2F')[-1]
-    except Exception:
-        product_id_3 = ''
-    if product_id_1:
-        return product_id_1
-    elif product_id_2:
-        return product_id_2
-    elif product_id_3:
-        return product_id_3
+        product_id = ''
+    #try:
+    #    product_id_1 = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
+    #except Exception:
+    #    product_id_1 = ''
+    #try:
+    #    product_id_2 = soup.find(rel='alternate', hreflang='ru')['href'].split('/')[-1]
+    #except Exception:
+    #    product_id_2 = ''
+    #try:
+    #    product_id_3 = soup.find(property='og:url')['content'].split("rdtUrl=")[1].split('%3Fsrc')[0].split('2F')[-1]
+    #except Exception:
+    #    product_id_3 = ''
+    #if product_id_1:
+    #    return product_id_1
+    #elif product_id_2:
+    #    return product_id_2
+    #elif product_id_3:
+    #    return product_id_3
+    if produc_id:
+        return product_id
     else:
         return "maintain.html"
 
