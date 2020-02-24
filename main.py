@@ -362,11 +362,13 @@ def handle_command(message):
         elif PATTERN_AALI_MSG.findall(message.text):
             try:
                 print(str(message.chat.id) + ':' + message.text + ' 5')
+                print(PATTERN_AALI_MSG.findall(message.text))
                 product_id = get_id_aali(PATTERN_AALI_MSG.findall(message.text)[0])
+                print(product_id)
                 if product_id:
                     send_parsed_message(message, product_id)
                 else:
-                    bot.send_message(message.chat.id, 'Кривая ссылка')
+                    bot.send_message(message.chat.id, 'Кривая ссылка, не достал номер товара')
             except Exception:
                 bot.send_message(message.chat.id, 'Кривая ссылка')
         else:
