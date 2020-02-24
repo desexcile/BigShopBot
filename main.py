@@ -357,7 +357,7 @@ def handle_command(message):
                 send_parsed_message(message, message.text)
         elif PATTERN_AALI_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 5')
-            product_id = get_id_aali(PATTERN_AALI_MSG.findall(message.text))
+            product_id = get_id_aali(PATTERN_AALI_MSG.findall(message.text)[0])
             if product_id:
                 send_parsed_message(message, product_id)
             else:
