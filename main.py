@@ -115,6 +115,7 @@ def get_usd_price(m_url):
 # Преобразовываем ссылку в мобильную версию, переходим по ней и забираем информацию о товаре
 def get_prod_info(html_id):
     m_url = 'https://m.ru.aliexpress.com/item/' + html_id
+    print(m_url)
     pc_url = 'https://ru.aliexpress.com/item/' + html_id
     cookie = {'aep_usuc_f': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
               'xman_us_f': 'x_locale=ru_RU&x_l=0'}
