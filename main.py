@@ -34,7 +34,7 @@ PATTERN_SCLICK_MSG = re.compile('https://s.click.aliexpress.com/[A-Za-z].*/[_A-Z
 PATTERN_HTML_MSG = re.compile('/item/[\\-0-9/A-Za-z].*.html')
 PATTERN_ALIPUB_MSG = re.compile('http://ali.pub/[0-9A-Za-z].*')
 PATTERN_PROD_ID = re.compile('[0-9].*.html')
-PATTERN_AALI_MSG = re.compile('https://a.aliexpress\.(ru|com)/.*')
+PATTERN_AALI_MSG = re.compile('https://a.aliexpress.com/.*|https://a.aliexpress.ru/.*')
 
 
 def get_id_alipub(link):
