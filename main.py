@@ -208,8 +208,8 @@ def add_auto_hashtags(text):
                 'nillkin', 'замша', 'гидрогель', 'гибрид', 'затычки' 'rj45']
 
     hashtags_dict = {'#typec': 'Type-C', '#35jack': '3.5mm',
-                     '#op5': '(5/?[^tTpP]|5/?$)', '#op5t': '5t', '#op6': '(6/?[^tTpP]|6/?$)', '#op6t': '6t',
-                     '#op7': '(7/?[^tTpP]|7/?$)', '#op7t': '(7t/?[^pP]|7t/?$)', '#op7pro': '7Pro', '#op7tpro': '7tPro'}
+                     '#op5': '(5/?[^a-zA-Z]|5/?$)', '#op5t': '5t', '#op6': '(6/?[^a-zA-Z]|6/?$)', '#op6t': '6t',
+                     '#op7': '(7/?[^A-Za-z]|7/?$)', '#op7t': '(7t/?[^pP]|7t/?$)', '#op7pro': '7Pro', '#op7tpro': '7tPro'}
 
     add_list = []
 
