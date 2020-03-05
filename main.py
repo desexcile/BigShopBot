@@ -246,7 +246,7 @@ def send_parsed_message(message, html_prod_id):
                                    'reviews': product_reviews,
                                    'promo_url': promo_link,
                                    'usd_price': usd_price})
-        filename = short_link.split('/')[-1] + '.txt'
+        filename = prod_id + '.txt'
         file = open(filename, 'w')
         file.write(product_data)
         file.close()
