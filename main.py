@@ -238,13 +238,12 @@ def send_parsed_message(message, html_prod_id):
                          '/?sub=yana&to=https://m.aliexpress.ru/item/' + prod_id + '.html'
         else:
             promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
-        short_link = get_short_link(promo_link)
+        # short_link = get_short_link(promo_link)
         product_data = json.dumps({'img': product_img_url,
                                    'title': title,
                                    'price': price,
                                    'rating': product_rating,
                                    'reviews': product_reviews,
-                                   'short_url': short_link,
                                    'promo_url': promo_link,
                                    'usd_price': usd_price})
         filename = short_link.split('/')[-1] + '.txt'
@@ -257,7 +256,7 @@ def send_parsed_message(message, html_prod_id):
                        + dollar_bag_smile + ' ' + usd_price + '\n'
                        + star_smile + ' ' + product_rating + '\n'
                        + review_smile + ' ' + product_reviews + '\n'
-                       + link_smile + ' ' + short_link + '\n'
+                       + link_smile + ' [Купить!](' + promo_link + ')\n'
                        + promo_link, parse_mode="markdown", reply_markup=keyboard)
     else:
         bot.send_message(message.chat.id, 'Не могу достать данные о товаре, попробуйте другой товар.')
@@ -299,7 +298,7 @@ def edit_about(message, filename, m_id):
                                      + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
                                      + star_smile + ' ' + product_data['rating'] + '\n'
                                      + review_smile + ' ' + product_data['reviews'] + '\n'
-                                     + link_smile + ' ' + product_data['short_url'] + '\n'
+                                     + link_smile + ' [Купить!](' + product_data['promo_url'] + ')\n'
                                      + product_data['promo_url'], parse_mode="markdown", reply_markup=keyboard)
 
 
@@ -323,7 +322,7 @@ def callback_inline(call):
                            + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
                            + star_smile + ' ' + product_data['rating'] + '\n'
                            + review_smile + ' ' + product_data['reviews'] + '\n'
-                           + link_smile + ' ' + product_data['short_url'], parse_mode="markdown")
+                           + link_smile + ' [Купить!](' + product_data['promo_url'] + ')', parse_mode="markdown")
             bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
 
     else:
@@ -345,8 +344,8 @@ def handle_command(message):
                     prod_id = html_id.split('.')[0]
                     # Создаем промо ссылку для последующего укорачивания
                     promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
-                    short_link = get_short_link(promo_link)
-                    bot.send_message(message.chat.id, short_link)
+                    # short_link = get_short_link(promo_link)
+                    bot.send_message(message.chat.id, promo_link)
         elif PATTERN_HTML_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 2')
             url = PATTERN_HTML_MSG.findall(message.text)
