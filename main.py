@@ -128,6 +128,7 @@ def get_prod_info(html_id):
               'xman_us_f': 'x_locale=ru_RU&x_l=0'}
     m_req = requests.get(m_url, cookies=cookie)
     m_soup = BeautifulSoup(m_req.text, "lxml")
+    print(m_soup)
     sss = m_soup.find('script').text.strip()
     print('Нужная строка джсон', sss)
     data_json = json.loads(sss)
