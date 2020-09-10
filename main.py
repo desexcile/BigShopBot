@@ -50,7 +50,9 @@ def get_info_from_selenium(link):
     driver.get(link)
     driver.delete_cookie("aep_usuc_f")
     driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'None', 'secure': True,
-                       'value': 'site=rus&c_tp=USD&region=RU&b_locale=ru_RU'})
+                       'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
+    usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
+    driver.refresh()
     x = driver.find_elements_by_tag_name('meta')
     for item in x:
         if item.get_attribute('property') == 'og:url':
@@ -61,8 +63,6 @@ def get_info_from_selenium(link):
     review = driver.find_element_by_class_name('product-reviewer-reviews').text.split(' ')[0]
     price = driver.find_element_by_class_name('product-price-value').text.split(' руб')[0]
     prod_name = driver.find_element_by_class_name('product-title-text').text
-    driver.refresh()
-    usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
     # print(driver.page_source)
     driver.close()
     return product_id, image, rating, review, price, prod_name, usd_price
