@@ -5,6 +5,8 @@ import json
 import time
 import re
 import os
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 bot = telebot.TeleBot(os.environ.get('TOKEN'))
 print(bot.get_me())
@@ -37,143 +39,172 @@ PATTERN_PROD_ID = re.compile('[0-9].*.html')
 PATTERN_AALI_MSG = re.compile('https://a.aliexpress.com/.*|https://a.aliexpress.ru/.*')
 
 
-def get_id_alipub(link):
-    req = requests.get(link)
-    soup = BeautifulSoup(req.text, "lxml")
-    try:
-        product_id = soup.find(property='al:android:url')['content'].split('productId=')[1].split('&')[0] + '.html'
-    except TypeError:
-        product_id = PATTERN_PROD_ID.findall(soup.get_text())
-        if product_id:
-            product_id = product_id[0]
-    return product_id
+def get_info_from_selenium(link):
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+
+    driver = webdriver.Chrome(executable_path=r'C:\Users\EVGENIYB\Downloads\chromedriver_win32\chromedriver.exe',
+                              options=chrome_options)
+    driver.get("https://a.aliexpress.ru/_eLpqQh")
+    driver.delete_cookie("aep_usuc_f")
+    driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'None', 'secure': True,
+                       'value': 'site=rus&c_tp=USD&region=RU&b_locale=ru_RU'})
+    x = driver.find_elements_by_tag_name('meta')
+    for item in x:
+        if item.get_attribute('property') == 'og:url':
+            product_id = item.get_attribute('content').split('.html')[0].split('/')[-1]
+            break
+    image = driver.find_element_by_id('poster').get_attribute('src')
+    rating = driver.find_element_by_class_name('overview-rating-average').text
+    review = driver.find_element_by_class_name('product-reviewer-reviews').text.split(' ')[0]
+    price = driver.find_element_by_class_name('product-price-value').text.split(' руб')[0]
+    prod_name = driver.find_element_by_class_name('product-title-text').text
+    driver.refresh()
+    usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
+    # print(driver.page_source)
+    driver.close()
+    return product_id, image, rating, review, price, prod_name, usd_price
 
 
-def get_id_aali(link):
-    req = requests.get(link)
-    soup = BeautifulSoup(req.text, "lxml")
-    try:
-        product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1].split('.html')[0] + '.html'
-    except Exception:
-        product_id = ''
-    if product_id:
-        return product_id
-    else:
-        return "maintain.html"
+# def get_id_alipub(link):
+#     req = requests.get(link)
+#     soup = BeautifulSoup(req.text, "lxml")
+#     try:
+#         product_id = soup.find(property='al:android:url')['content'].split('productId=')[1].split('&')[0] + '.html'
+#     except TypeError:
+#         product_id = PATTERN_PROD_ID.findall(soup.get_text())
+#         if product_id:
+#             product_id = product_id[0]
+#     return product_id
 
 
-def get_id_sclick(link):
-    req = requests.get(link)
-    soup = BeautifulSoup(req.text, "lxml")
-    try:
-        product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1].split('.html')[0] + '.html'
-    except Exception:
-        product_id = ''
-    #try:
-    #    product_id_1 = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
-    #except Exception:
-    #    product_id_1 = ''
-    #try:
-    #    product_id_2 = soup.find(rel='alternate', hreflang='ru')['href'].split('/')[-1]
-    #except Exception:
-    #    product_id_2 = ''
-    #try:
-    #    product_id_3 = soup.find(property='og:url')['content'].split("rdtUrl=")[1].split('%3Fsrc')[0].split('2F')[-1]
-    #except Exception:
-    #    product_id_3 = ''
-    #if product_id_1:
-    #    return product_id_1
-    #elif product_id_2:
-    #    return product_id_2
-    #elif product_id_3:
-    #    return product_id_3
-    if product_id:
-        return product_id
-    else:
-        return "maintain.html"
+# def get_id_aali(link):
+#     req = requests.get(link)
+#     soup = BeautifulSoup(req.text, "lxml")
+#     try:
+#         product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1].split('.html')[0] + '.html'
+#     except Exception:
+#         product_id = ''
+#     if product_id:
+#         return product_id
+#     else:
+#         return "maintain.html"
 
 
-def get_id_html(link):
-    splitted_link = link.split('/')[-1]
-    product_id = splitted_link
-    return product_id
+# def get_id_sclick(link):
+#     req = requests.get(link)
+#     soup = BeautifulSoup(req.text, "lxml")
+#     try:
+#         product_id = re.findall('item/[0-9].*.html', soup.text)[0].split('item/')[1].split('.html')[0] + '.html'
+#     except Exception:
+#         product_id = ''
+#     #try:
+#     #    product_id_1 = soup.find(property='al:android:url')['content'].split('https://')[1].split('?')[0].split('/')[-1]
+#     #except Exception:
+#     #    product_id_1 = ''
+#     #try:
+#     #    product_id_2 = soup.find(rel='alternate', hreflang='ru')['href'].split('/')[-1]
+#     #except Exception:
+#     #    product_id_2 = ''
+#     #try:
+#     #    product_id_3 = soup.find(property='og:url')['content'].split("rdtUrl=")[1].split('%3Fsrc')[0].split('2F')[-1]
+#     #except Exception:
+#     #    product_id_3 = ''
+#     #if product_id_1:
+#     #    return product_id_1
+#     #elif product_id_2:
+#     #    return product_id_2
+#     #elif product_id_3:
+#     #    return product_id_3
+#     if product_id:
+#         return product_id
+#     else:
+#         return "maintain.html"
 
 
-def get_usd_price(m_url):
-    cookie = {'aep_usuc_f': 'site=rus&c_tp=USD&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
-              'xman_us_f': 'x_locale=ru_RU&x_l=0'}
-    m_req = requests.get(m_url, cookies=cookie)
-    m_soup = BeautifulSoup(m_req.text, "lxml")
-    try:
-        data_json = json.loads(m_soup.find('script').text.strip())
-    except Exception:
-        current_price = ''
-    try:
-        current_price = data_json['offers']['price'] + ' ' + data_json['offers']['priceCurrency']
-    except KeyError:
-        try:
-            current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
-                            ' ' + data_json['offers']['priceCurrency']
-        except KeyError:
-            current_price = ''
-    return current_price
+# def get_id_html(link):
+#     splitted_link = link.split('/')[-1]
+#     product_id = splitted_link
+#     return product_id
+
+
+# def get_usd_price(m_url):
+#     cookie = {'aep_usuc_f': 'site=rus&c_tp=USD&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
+#               'xman_us_f': 'x_locale=ru_RU&x_l=0'}
+#     m_req = requests.get(m_url, cookies=cookie)
+#     m_soup = BeautifulSoup(m_req.text, "lxml")
+#     try:
+#         data_json = json.loads(m_soup.find('script').text.strip())
+#     except Exception:
+#         current_price = ''
+#     try:
+#         current_price = data_json['offers']['price'] + ' ' + data_json['offers']['priceCurrency']
+#     except KeyError:
+#         try:
+#             current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
+#                             ' ' + data_json['offers']['priceCurrency']
+#         except KeyError:
+#             current_price = ''
+#     return current_price
 
 
 # Преобразовываем ссылку в мобильную версию, переходим по ней и забираем информацию о товаре
-def get_prod_info(html_id):
-    m_url = 'https://m.ru.aliexpress.com/item/' + html_id
-    print(m_url)
-    pc_url = 'https://ru.aliexpress.com/item/' + html_id
-    cookie = {'aep_usuc_f': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
-              'xman_us_f': 'x_locale=ru_RU&x_l=0'}
-    m_req = requests.get(m_url, cookies=cookie)
-    m_soup = BeautifulSoup(m_req.text, "lxml")
-    print(m_soup)
-    sss = m_soup.find('script').text.strip()
-    print('Нужная строка джсон', sss)
-    data_json = json.loads(sss)
-    try:
-        img_url = data_json['image']
-    except KeyError:
-        img_url = ''
-    try:
-        rus_title = data_json['name']
-    except KeyError:
-        rus_title = ''
-    try:
-        user_count = str(data_json['aggregateRating']['ratingCount'])
-    except KeyError:
-        user_count = 'Нет Отзывов'
-    try:
-        user_rating = str(data_json['aggregateRating']['ratingValue'])
-    except KeyError:
-        user_rating = 'Нет Рейтинга'
-    try:
-        current_price = data_json['offers']['price'] + ' ' + data_json['offers']['priceCurrency']
-    except KeyError:
-        try:
-            current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
-                            ' ' + data_json['offers']['priceCurrency']
-        except KeyError:
-            current_price = ''
-    usd_price = get_usd_price(m_url)
-    return user_count, user_rating, img_url, rus_title, pc_url, current_price, usd_price
+# def get_prod_info(html_id):
+#     m_url = 'https://m.ru.aliexpress.com/item/' + html_id
+#     print(m_url)
+#     pc_url = 'https://ru.aliexpress.com/item/' + html_id
+#     cookie = {'aep_usuc_f': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
+#               'xman_us_f': 'x_locale=ru_RU&x_l=0'}
+#     m_req = requests.get(m_url, cookies=cookie)
+#     m_soup = BeautifulSoup(m_req.text, "lxml")
+#     print(m_soup)
+#     sss = m_soup.find('script').text.strip()
+#     print('Нужная строка джсон', sss)
+#     data_json = json.loads(sss)
+#     try:
+#         img_url = data_json['image']
+#     except KeyError:
+#         img_url = ''
+#     try:
+#         rus_title = data_json['name']
+#     except KeyError:
+#         rus_title = ''
+#     try:
+#         user_count = str(data_json['aggregateRating']['ratingCount'])
+#     except KeyError:
+#         user_count = 'Нет Отзывов'
+#     try:
+#         user_rating = str(data_json['aggregateRating']['ratingValue'])
+#     except KeyError:
+#         user_rating = 'Нет Рейтинга'
+#     try:
+#         current_price = data_json['offers']['price'] + ' ' + data_json['offers']['priceCurrency']
+#     except KeyError:
+#         try:
+#             current_price = data_json['offers']['lowPrice'] + ' - ' + data_json['offers']['highPrice'] + \
+#                             ' ' + data_json['offers']['priceCurrency']
+#         except KeyError:
+#             current_price = ''
+#     usd_price = get_usd_price(m_url)
+#     return user_count, user_rating, img_url, rus_title, pc_url, current_price, usd_price
 
 
 # Сокращаем промо ссылку
-def get_short_link(long_link):
-    get_url_link = 'http://save.ali.pub/get-url.php'
-    form_data = {
-        'url': long_link,
-        'submit': 'submit',
-    }
-    response = requests.post(get_url_link, data=form_data)
-    soap = BeautifulSoup(response.text, "lxml")
-    try:
-        result = soap.find('div', {'class': 'result'}).text.split('Сокращение: ')[1].strip()
-    except AttributeError:
-        result = long_link
-    return result
+# def get_short_link(long_link):
+#     get_url_link = 'http://save.ali.pub/get-url.php'
+#     form_data = {
+#         'url': long_link,
+#         'submit': 'submit',
+#     }
+#     response = requests.post(get_url_link, data=form_data)
+#     soap = BeautifulSoup(response.text, "lxml")
+#     try:
+#         result = soap.find('div', {'class': 'result'}).text.split('Сокращение: ')[1].strip()
+#     except AttributeError:
+#         result = long_link
+#     return result
 
 
 def create_button(btn_text, btn_ch_id, filename):
@@ -227,12 +258,9 @@ def add_auto_hashtags(text):
     return hash_list
 
 
-def send_parsed_message(message, html_prod_id):
-    product_reviews, product_rating, product_img_url, title, product_full_url, price, usd_price = get_prod_info(
-        html_prod_id)
+def send_parsed_message(message, link):
+    prod_id, product_img_url, product_rating, product_reviews, price, title, usd_price = get_info_from_selenium(link)
     if title and product_img_url and price:
-        # Получаем числовой ID Товара для создания промо ссылки
-        prod_id = html_prod_id.split('.')[0]
         # Создаем промо ссылку для последующего укорачивания
         if message.chat.id == 101065511:
             promo_link = 'http://alipromo.com/redirect/cpa/o/' + deeplink_hash + \
@@ -338,46 +366,37 @@ def handle_command(message):
             url = PATTERN_SCLICK_MSG.findall(message.text)
             print(url)
             for i in url:
-                html_id = get_id_sclick(i)
                 try:
-                    send_parsed_message(message, html_id)
+                    send_parsed_message(message, i)
                 except Exception:
-                    prod_id = html_id.split('.')[0]
-                    # Создаем промо ссылку для последующего укорачивания
-                    promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
-                    # short_link = get_short_link(promo_link)
-                    bot.send_message(message.chat.id, promo_link)
+                    # prod_id = html_id.split('.')[0]
+                    # # Создаем промо ссылку для последующего укорачивания
+                    # promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
+                    # # short_link = get_short_link(promo_link)
+                    bot.send_message(message.chat.id, 'не вышло чёт')
         elif PATTERN_HTML_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 2')
             url = PATTERN_HTML_MSG.findall(message.text)
             for i in url:
-                html_id = get_id_html(i)
-                send_parsed_message(message, html_id)
+                send_parsed_message(message, i)
         elif PATTERN_ALIPUB_MSG.findall(message.text):
             print(str(message.chat.id) + ':' + message.text + ' 3')
             url = PATTERN_ALIPUB_MSG.findall(message.text)
             for i in url:
-                html_id = get_id_alipub(i)
-                send_parsed_message(message, html_id)
-        elif PATTERN_PROD_ID.findall(message.text):
-            print(str(message.chat.id) + ':' + message.text + ' 4')
-            if re.match(".*aliexpress.*", PATTERN_PROD_ID.findall(message.text)[0]):
-                product_id = PATTERN_PROD_ID.findall(message.text)[0].split('2F')[-1]
-                send_parsed_message(message, product_id)
-            else:
-                send_parsed_message(message, message.text)
+                send_parsed_message(message, i)
+        # elif PATTERN_PROD_ID.findall(message.text):
+        #     print(str(message.chat.id) + ':' + message.text + ' 4')
+        #     if re.match(".*aliexpress.*", PATTERN_PROD_ID.findall(message.text)[0]):
+        #         product_id = PATTERN_PROD_ID.findall(message.text)[0].split('2F')[-1]
+        #         send_parsed_message(message, product_id)
+        #     else:
+        #         send_parsed_message(message, message.text)
         elif PATTERN_AALI_MSG.findall(message.text):
             try:
                 print(str(message.chat.id) + ':' + message.text + ' 5')
                 print('патерн')
                 print(PATTERN_AALI_MSG.findall(message.text)[0])
-                product_id = get_id_aali(PATTERN_AALI_MSG.findall(message.text)[0])
-                print('прод id')
-                print(product_id)
-                if product_id:
-                    send_parsed_message(message, product_id)
-                else:
-                    bot.send_message(message.chat.id, 'Кривая ссылка, не достал номер товара')
+                send_parsed_message(message, PATTERN_AALI_MSG.findall(message.text)[0])
             except Exception:
                 bot.send_message(message.chat.id, 'Кривая ссылка')
         else:
