@@ -41,13 +41,13 @@ PATTERN_AALI_MSG = re.compile('https://a.aliexpress.com/.*|https://a.aliexpress.
 
 def get_info_from_selenium(link):
     chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
-
-    driver = webdriver.Chrome(executable_path=r'C:\Users\EVGENIYB\Downloads\chromedriver_win32\chromedriver.exe',
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),
                               options=chrome_options)
-    driver.get("https://a.aliexpress.ru/_eLpqQh")
+    driver.get(link)
     driver.delete_cookie("aep_usuc_f")
     driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'None', 'secure': True,
                        'value': 'site=rus&c_tp=USD&region=RU&b_locale=ru_RU'})
