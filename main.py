@@ -51,7 +51,7 @@ def get_info_from_selenium(link):
     driver.delete_cookie("aep_usuc_f")
     driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'Lax', 'secure': True,
                        'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
-    usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
+    usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1] + ' USD'
     driver.refresh()
     x = driver.find_elements_by_tag_name('meta')
     for item in x:
@@ -73,11 +73,11 @@ def get_info_from_selenium(link):
     soup = BeautifulSoup(req.text, "lxml")
     price_rub = re.findall('formatedActivityPrice.*', soup.text)
     if price_rub:
-        price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1]
+        price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1] + ' RUB'
     else:
         price_rub = re.findall('formatedPrice.*', soup.text)
         if price_rub:
-            price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1]
+            price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1] + ' RUB'
         else:
             price_rub = ''
     return product_id, image, rating, review, price_rub, prod_name, usd_price
