@@ -47,16 +47,17 @@ def get_info_from_selenium(link):
     chrome_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),
                               options=chrome_options)
-    driver.get(link)
+    driver.get('https://aliexpress.ru/wsheader/ws404.htm')
     print('Cookie 1 = ')
     print(driver.get_cookies())
     driver.delete_all_cookies()
-    driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'Strict', 'secure': True,
+    driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'None', 'secure': True,
                        'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
+    driver.get(link)
     usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
     print('Cookie 2 = ')
     print(driver.get_cookies())
-    driver.refresh()
+    #driver.refresh()
     x = driver.find_elements_by_tag_name('meta')
     for item in x:
         prop = item.get_attribute('property')
