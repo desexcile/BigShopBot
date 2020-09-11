@@ -47,20 +47,12 @@ def get_info_from_selenium(link):
     chrome_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),
                               options=chrome_options)
-    driver.get('https://aliexpress.ru/wsheader/ws404.htm')
-    print('Cookie 1 = ')
-    print(driver.get_cookies())
-    driver.delete_all_cookies()
-    driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'None', 'secure': True,
-                       'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
-    driver.execute_script("window.navigator.geolocation.getCurrentPosition=function(success){" + "var position = {\"coords\" : {\"latitude\": \"55.755831\",\"longitude\": \"37.617673\"}};" + "success(position);}");
-    print(driver.execute_script("var positionStr=\"\";" + "window.navigator.geolocation.getCurrentPosition(function(pos){positionStr=pos.coords.latitude+\":\"+pos.coords.longitude});" + "return positionStr;"))
-
     driver.get(link)
+    driver.delete_cookie("aep_usuc_f")
+    driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'Lax', 'secure': True,
+                       'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
     usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
-    print('Cookie 2 = ')
-    print(driver.get_cookies())
-    #driver.refresh()
+    driver.refresh()
     x = driver.find_elements_by_tag_name('meta')
     for item in x:
         prop = item.get_attribute('property')
@@ -69,15 +61,26 @@ def get_info_from_selenium(link):
         elif prop == 'og:image':
             image = item.get_attribute('content')
             break
-    print('Cookie 3 = ')
-    print(driver.get_cookies())
     rating = driver.find_element_by_class_name('overview-rating-average').text
     review = driver.find_element_by_class_name('product-reviewer-reviews').text.split(' ')[0]
-    price = driver.find_element_by_class_name('product-price-value').text.split(' руб')[0]
+    #price = driver.find_element_by_class_name('product-price-value').text.split(' руб')[0]
     prod_name = driver.find_element_by_class_name('product-title-text').text
     # print(driver.page_source)
     driver.close()
-    return product_id, image, rating, review, price, prod_name, usd_price
+    req = requests.get('https://aliexpress.ru/item/' + product_id + '.html',
+                       cookies={'aep_usuc_f': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
+                                'xman_us_f': 'x_locale=ru_RU&x_l=0'})
+    soup = BeautifulSoup(req.text, "lxml")
+    price_rub = re.findall('formatedActivityPrice.*', soup.text)
+    if price_rub:
+        price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1]
+    else:
+        price_rub = re.findall('formatedPrice.*', soup.text)
+        if price_rub:
+            price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1]
+        else:
+            price_rub = ''
+    return product_id, image, rating, review, price_rub, prod_name, usd_price
 
 
 # def get_id_alipub(link):
