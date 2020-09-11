@@ -51,7 +51,7 @@ def get_info_from_selenium(link):
     print('Cookie 1 = ')
     print(driver.get_cookies())
     driver.delete_cookie("aep_usuc_f")
-    driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'Lax', 'secure': True,
+    driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'Strict', 'secure': True,
                        'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
     usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
     print('Cookie 2 = ')
