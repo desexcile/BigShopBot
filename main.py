@@ -53,6 +53,9 @@ def get_info_from_selenium(link):
     driver.delete_all_cookies()
     driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'None', 'secure': True,
                        'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
+    driver.execute_script("window.navigator.geolocation.getCurrentPosition=function(success){" + "var position = {\"coords\" : {\"latitude\": \"55.755831\",\"longitude\": \"37.617673\"}};" + "success(position);}");
+    print(driver.execute_script("var positionStr=\"\";" + "window.navigator.geolocation.getCurrentPosition(function(pos){positionStr=pos.coords.latitude+\":\"+pos.coords.longitude});" + "return positionStr;"))
+
     driver.get(link)
     usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1]
     print('Cookie 2 = ')
