@@ -55,10 +55,13 @@ def get_info_from_selenium(link):
     driver.refresh()
     x = driver.find_elements_by_tag_name('meta')
     for item in x:
-        if item.get_attribute('property') == 'og:url':
+        prop = item.get_attribute('property')
+        if prop == 'og:url':
             product_id = item.get_attribute('content').split('.html')[0].split('/')[-1]
+        elif prop == 'og:image':
+            image = item.get_attribute('content')
             break
-    image = driver.find_element_by_id('poster').get_attribute('src')
+    driver.get_cookies()
     rating = driver.find_element_by_class_name('overview-rating-average').text
     review = driver.find_element_by_class_name('product-reviewer-reviews').text.split(' ')[0]
     price = driver.find_element_by_class_name('product-price-value').text.split(' руб')[0]
