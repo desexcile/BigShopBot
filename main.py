@@ -207,19 +207,23 @@ def get_info_from_selenium(link):
 
 
 # Сокращаем промо ссылку
-# def get_short_link(long_link):
-#     get_url_link = 'http://save.ali.pub/get-url.php'
-#     form_data = {
-#         'url': long_link,
-#         'submit': 'submit',
-#     }
-#     response = requests.post(get_url_link, data=form_data)
-#     soap = BeautifulSoup(response.text, "lxml")
-#     try:
-#         result = soap.find('div', {'class': 'result'}).text.split('Сокращение: ')[1].strip()
-#     except AttributeError:
-#         result = long_link
-#     return result
+def get_short_link(long_link):
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"),
+                              options=chrome_options)
+    driver.get("https://ali.pub")
+    driver.find_element_by_class_name('input1').send_keys(long_link)
+    driver.find_element_by_class_name('input2').click()
+    while True:
+        short_link = driver.find_element_by_class_name('input1').get_attribute('value')
+        if re.findall('http://ali.pub/.*', short_link):
+            break
+    driver.close()
+    return short_link
 
 
 def create_button(btn_text, btn_ch_id, filename):
@@ -282,12 +286,13 @@ def send_parsed_message(message, link):
                          '/?sub=yana&to=https://m.aliexpress.ru/item/' + prod_id + '.html'
         else:
             promo_link = 'http://alipromo.com/redirect/product/' + deeplink_hash + '/' + prod_id + '/ru'
-        # short_link = get_short_link(promo_link)
+        short_link = get_short_link(promo_link)
         product_data = json.dumps({'img': product_img_url,
                                    'title': title,
                                    'price': price,
                                    'rating': product_rating,
                                    'reviews': product_reviews,
+                                   'short_url': short_link,
                                    'promo_url': promo_link,
                                    'usd_price': usd_price})
         filename = prod_id + '.txt'
@@ -300,7 +305,7 @@ def send_parsed_message(message, link):
                        + dollar_bag_smile + ' ' + usd_price + '\n'
                        + star_smile + ' ' + product_rating + '\n'
                        + review_smile + ' ' + product_reviews + '\n'
-                       + link_smile + ' [Купить!](' + promo_link + ')\n'
+                       + link_smile + ' [Купить!](' + short_link + ')\n'
                        + promo_link, parse_mode="markdown", reply_markup=keyboard)
     else:
         bot.send_message(message.chat.id, 'Не могу достать данные о товаре, попробуйте другой товар.')
@@ -342,7 +347,7 @@ def edit_about(message, filename, m_id):
                                      + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
                                      + star_smile + ' ' + product_data['rating'] + '\n'
                                      + review_smile + ' ' + product_data['reviews'] + '\n'
-                                     + link_smile + ' [Купить!](' + product_data['promo_url'] + ')\n'
+                                     + link_smile + ' [Купить!](' + product_data['short_url'] + ')\n'
                                      + product_data['promo_url'], parse_mode="markdown", reply_markup=keyboard)
 
 
