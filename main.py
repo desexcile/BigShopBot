@@ -260,7 +260,8 @@ def add_auto_hashtags(text):
 
     hashtags_dict = {'#typec': 'Type-C', '#35jack': '3.5mm',
                      '#op5': '(5/?[^a-zA-Z]|5/?$)', '#op5t': '5t', '#op6': '(6/?[^a-zA-Z]|6/?$)', '#op6t': '6t',
-                     '#op7': '(7/?[^A-Za-z]|7/?$)', '#op7t': '(7t/?[^pP]|7t/?$)', '#op7pro': '7Pro', '#op7tpro': '7tPro'}
+                     '#op7': '(7/?[^A-Za-z]|7/?$)', '#op7t': '(7t/?[^pP]|7t/?$)', '#op7pro': '7Pro',
+                     '#op7tpro': '7tPro', '#op8': '(8/?[^A-Za-z]|8/?$)', '#op8pro': '8Pro'}
 
     add_list = []
 
@@ -371,7 +372,7 @@ def callback_inline(call):
                            + dollar_bag_smile + ' ' + product_data['usd_price'] + '\n'
                            + star_smile + ' ' + product_data['rating'] + '\n'
                            + review_smile + ' ' + product_data['reviews'] + '\n'
-                           + link_smile + ' [Купить!](' + product_data['promo_url'] + ')', parse_mode="markdown")
+                           + link_smile + ' [Купить!](' + product_data['short_url'] + ')', parse_mode="markdown")
             bot.send_message(call.message.chat.id, 'Отправил сообщение в канал ' + channel_name)
 
     else:
