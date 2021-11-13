@@ -39,7 +39,7 @@ PATTERN_PROD_ID = re.compile('[0-9].*.html')
 PATTERN_AALI_MSG = re.compile('https://a.aliexpress.com/.*|https://a.aliexpress.ru/.*')
 
 
-def get_info_from_selenium(link):
+def get_info_from_selenium(link, message):
     chrome_options = webdriver.ChromeOptions()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--headless")
@@ -51,37 +51,34 @@ def get_info_from_selenium(link):
     driver.delete_cookie("aep_usuc_f")
     driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'Lax', 'secure': True,
                        'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
-    usd_price = driver.find_element_by_class_name('product-price-value').text.split('$')[-1] + ' USD'
-    driver.refresh()
-    x = driver.find_elements_by_tag_name('meta')
-    for item in x:
-        prop = item.get_attribute('property')
-        if prop == 'og:url':
-            product_id = item.get_attribute('content').split('.html')[0].split('/')[-1]
-        elif prop == 'og:image':
-            image = item.get_attribute('content')
-            break
-    rating = driver.find_element_by_class_name('overview-rating-average').text
-    review = driver.find_element_by_class_name('product-reviewer-reviews').text.split(' ')[0]
-    #price = driver.find_element_by_class_name('product-price-value').text.split(' руб')[0]
-    prod_name = driver.find_element_by_class_name('product-title-text').text
+    usd_price = driver.find_element_by_xpath('//*[@id="#content"]/div[contains(@class, "Price")]').text.split('$')[-1] + ' USD'
+    product_id = driver.current_url.split('.html')[0].split('/')[-1]
+    driver.get(link)
+    image = driver.find_element_by_xpath('//*/div[contains(@class, "Gallery")]/img').get_property('src')
+    rating = driver.find_element_by_xpath('//*/div[contains(@class, "Reviews")]/div[contains(@class, "start")]').text
+    review = driver.find_element_by_xpath('//*/div[contains(@class, "Reviews")]/div[contains(@class, "reviews")]').text
+    try:
+        price_rub = driver.find_element_by_xpath('//*/div[contains(@class, "Price")]').text.split(' руб')[0] + ' RUB'
+    except Exception:
+        bot.send_message(message.chat.id, Exception + '\n Не достал рубли')
+        price_rub = 0
+    prod_name = driver.find_element_by_xpath('//*/div[contains(@class, "Name")]').text
     # print(driver.page_source)
     driver.close()
-    req = requests.get('https://aliexpress.ru/item/' + product_id + '.html',
-                       cookies={'aep_usuc_f': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
-                                'xman_us_f': 'x_locale=ru_RU&x_l=0'})
-    soup = BeautifulSoup(req.text, "lxml")
-    price_rub = re.findall('formatedActivityPrice.*', soup.text)
-    if price_rub:
-        price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1] + ' RUB'
-    else:
-        price_rub = re.findall('formatedPrice.*', soup.text)
-        if price_rub:
-            price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1] + ' RUB'
-        else:
-            price_rub = ''
+    # req = requests.get('https://aliexpress.ru/item/' + product_id + '.html',
+    #                    cookies={'aep_usuc_f': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU', 'intl_locale': 'ru_RU',
+    #                             'xman_us_f': 'x_locale=ru_RU&x_l=0'})
+    # soup = BeautifulSoup(req.text, "lxml")
+    # price_rub = re.findall('formatedActivityPrice.*', soup.text)
+    # if price_rub:
+    #     price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1] + ' RUB'
+    # else:
+    #     price_rub = re.findall('formatedPrice.*', soup.text)
+    #     if price_rub:
+    #         price_rub = price_rub[0].replace(u'\xa0', u' ').split(' руб')[0].split('"')[-1] + ' RUB'
+    #     else:
+    #         price_rub = ''
     return product_id, image, rating, review, price_rub, prod_name, usd_price
-
 
 # def get_id_alipub(link):
 #     req = requests.get(link)
@@ -279,7 +276,7 @@ def add_auto_hashtags(text):
 
 
 def send_parsed_message(message, link):
-    prod_id, product_img_url, product_rating, product_reviews, price, title, usd_price = get_info_from_selenium(link)
+    prod_id, product_img_url, product_rating, product_reviews, price, title, usd_price = get_info_from_selenium(link, message)
     if title and product_img_url and price:
         # Создаем промо ссылку для последующего укорачивания
         if message.chat.id == 101065511:
