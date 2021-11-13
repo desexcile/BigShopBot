@@ -416,7 +416,7 @@ def handle_command(message):
                 print(PATTERN_AALI_MSG.findall(message.text)[0])
                 send_parsed_message(message, PATTERN_AALI_MSG.findall(message.text)[0])
             except Exception:
-                bot.send_message(message.chat.id, 'Кривая ссылка')
+                bot.send_message(message.chat.id, Exception + 'Кривая ссылка')
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
             print(str(message.chat.id) + ':' + message.text + ' Кривая ссылка')
