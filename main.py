@@ -51,7 +51,7 @@ def get_info_from_selenium(link, message):
     driver.delete_cookie("aep_usuc_f")
     driver.add_cookie({'name': 'aep_usuc_f', 'path': '/', 'sameSite': 'Lax', 'secure': True,
                        'value': 'site=rus&c_tp=RUB&region=RU&b_locale=ru_RU'})
-    usd_price = driver.find_element_by_xpath('//*[@id="#content"]/div[contains(@class, "Price")]').text.split('$')[-1] + ' USD'
+    usd_price = driver.find_element_by_xpath('//*/div[contains(@class, "Price")]').text.split('$')[-1] + ' USD'
     product_id = driver.current_url.split('.html')[0].split('/')[-1]
     driver.get(link)
     image = driver.find_element_by_xpath('//*/div[contains(@class, "Gallery")]/img').get_property('src')
