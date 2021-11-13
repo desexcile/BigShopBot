@@ -57,12 +57,7 @@ def get_info_from_selenium(link, message):
     image = driver.find_element_by_xpath('//*/div[contains(@class, "Gallery")]/img').get_property('src')
     rating = driver.find_element_by_xpath('//*/div[contains(@class, "Reviews")]/div[contains(@class, "start")]').text
     review = driver.find_element_by_xpath('//*/div[contains(@class, "Reviews")]/div[contains(@class, "reviews")]').text
-    try:
-        price_rub = driver.find_element_by_xpath('//*/div[contains(@class, "Price")]').text.split(' руб')[0] + ' RUB'
-    except Exception:
-        bot.send_message(message.chat.id, 'Не достал рубли')
-        print(Exception)
-        price_rub = 0
+    price_rub = driver.find_element_by_xpath('//*/div[contains(@class, "Price")]').text.split(' руб')[0] + ' RUB'
     prod_name = driver.find_element_by_xpath('//*/div[contains(@class, "Name")]').text
     # print(driver.page_source)
     driver.close()
@@ -411,14 +406,10 @@ def handle_command(message):
         #     else:
         #         send_parsed_message(message, message.text)
         elif PATTERN_AALI_MSG.findall(message.text):
-            try:
-                print(str(message.chat.id) + ':' + message.text + ' 5')
-                print('патерн')
-                print(PATTERN_AALI_MSG.findall(message.text)[0])
-                send_parsed_message(message, PATTERN_AALI_MSG.findall(message.text)[0])
-            except Exception:
-                print(Exception)
-                bot.send_message(message.chat.id, 'Кривая ссылка')
+            print(str(message.chat.id) + ':' + message.text + ' 5')
+            print('патерн')
+            print(PATTERN_AALI_MSG.findall(message.text)[0])
+            send_parsed_message(message, PATTERN_AALI_MSG.findall(message.text)[0])
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
             print(str(message.chat.id) + ':' + message.text + ' Кривая ссылка')
