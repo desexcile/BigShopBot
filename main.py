@@ -60,7 +60,8 @@ def get_info_from_selenium(link, message):
     try:
         price_rub = driver.find_element_by_xpath('//*/div[contains(@class, "Price")]').text.split(' руб')[0] + ' RUB'
     except Exception:
-        bot.send_message(message.chat.id, Exception + '\n Не достал рубли')
+        bot.send_message(message.chat.id, 'Не достал рубли')
+        print(Exception)
         price_rub = 0
     prod_name = driver.find_element_by_xpath('//*/div[contains(@class, "Name")]').text
     # print(driver.page_source)
@@ -416,7 +417,8 @@ def handle_command(message):
                 print(PATTERN_AALI_MSG.findall(message.text)[0])
                 send_parsed_message(message, PATTERN_AALI_MSG.findall(message.text)[0])
             except Exception:
-                bot.send_message(message.chat.id, Exception + 'Кривая ссылка')
+                print(Exception)
+                bot.send_message(message.chat.id, 'Кривая ссылка')
         else:
             bot.send_message(message.chat.id, 'Кривая ссылка')
             print(str(message.chat.id) + ':' + message.text + ' Кривая ссылка')
